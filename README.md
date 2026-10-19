@@ -2,11 +2,11 @@
 
 A centralized, responsive, role-based campus item-recovery platform engineered for colleges and universities.
 
-> 🌐 **Live Public Prototype URL:** [https://captain-locking-allow-purchasing.trycloudflare.com](https://captain-locking-allow-purchasing.trycloudflare.com)  
-> *(Accessible worldwide on any desktop, tablet, or smartphone without installation)*
+> 🌐 **Permanent Live Web App:** [https://vikrantgawai.github.io/campus-lost-and-found/](https://vikrantgawai.github.io/campus-lost-and-found/)  
+> *(Hosted 24/7 on GitHub Pages — zero errors, accessible worldwide on mobile, tablet, and PC)*
 >
-> 📱 **Download Android App (APK):** [https://github.com/VikrantGawai/campus-lost-and-found/releases](https://github.com/VikrantGawai/campus-lost-and-found/releases)  
-> *(Download directly to any Android device to install and test as a native mobile application)*
+> 📁 **GitHub Repository:** [https://github.com/VikrantGawai/campus-lost-and-found](https://github.com/VikrantGawai/campus-lost-and-found)  
+> *(Full source code, native Android project, and backend security rules)*
 
 ## Key Features & Highlights
 
