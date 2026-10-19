@@ -2,6 +2,9 @@
 
 A centralized, responsive, role-based campus item-recovery platform engineered for colleges and universities.
 
+> 🌐 **Live Public Prototype URL:** [https://captain-locking-allow-purchasing.trycloudflare.com](https://captain-locking-allow-purchasing.trycloudflare.com)  
+> *(Accessible worldwide on any desktop, tablet, or smartphone without installation)*
+
 ## Key Features & Highlights
 
 1. **Return Assistance (Core Differentiator)**
