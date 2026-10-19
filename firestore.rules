@@ -1,0 +1,110 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+        (request.auth.token.role == 'admin' || 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+    }
+    
+    function isVolunteer() {
+      return isAuthenticated() && 
+        (request.auth.token.role == 'volunteer' || 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'volunteer');
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId) || isAdmin();
+    }
+
+    // Items Collection (Lost & Found reports)
+    match /items/{itemId} {
+      // Anyone logged in can read public items list
+      allow read: if isAuthenticated();
+      // Only authenticated users can file reports
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      // Only creator or admin can update item status or edit report
+      allow update: if isAuthenticated() && (isOwner(resource.data.userId) || isAdmin());
+      allow delete: if isAdmin();
+      
+      // Private Evidence Subcollection (Strictly shielded from public reads)
+      match /privateEvidence/{evidenceId} {
+        allow read: if isOwner(get(/databases/$(database)/documents/items/$(itemId)).data.userId) || isAdmin();
+        allow write: if isOwner(get(/databases/$(database)/documents/items/$(itemId)).data.userId) || isAdmin();
+      }
+    }
+
+    // Claims Collection
+    match /claims/{claimId} {
+      // Claim is visible only to Claimant, Finder of the item, or Admin
+      allow read: if isAuthenticated() && (
+        isOwner(resource.data.claimantId) ||
+        isOwner(resource.data.finderId) ||
+        isAdmin()
+      );
+      
+      // Any authenticated user can submit a claim for an item they do not own
+      allow create: if isAuthenticated() && 
+        request.resource.data.claimantId == request.auth.uid;
+        
+      // Only the finder or admin can review and update claim decisions
+      allow update: if isAuthenticated() && (
+        isOwner(resource.data.finderId) ||
+        isAdmin()
+      );
+      
+      allow delete: if isAdmin();
+    }
+
+    // Handovers Collection
+    match /handovers/{handoverId} {
+      // Visible to Finder, Assigned Volunteer, or Admin
+      allow read: if isAuthenticated() && (
+        isOwner(resource.data.finderId) ||
+        isOwner(resource.data.volunteerId) ||
+        isAdmin() ||
+        isVolunteer()
+      );
+      
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (
+        isOwner(resource.data.finderId) ||
+        isOwner(resource.data.volunteerId) ||
+        isAdmin() ||
+        isVolunteer()
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Collection Points
+    match /collectionPoints/{pointId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // In-App Notifications
+    match /notifications/{notificationId} {
+      allow read, update, delete: if isAuthenticated() && isOwner(resource.data.userId);
+      allow create: if isAuthenticated();
+    }
+
+    // Audit Log
+    match /auditLog/{auditId} {
+      allow read: if isAdmin();
+      allow create: if isAuthenticated();
+      allow update, delete: if false; // Append-only audit trail
+    }
+  }
+}
